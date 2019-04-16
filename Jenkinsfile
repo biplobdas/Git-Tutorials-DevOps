@@ -12,7 +12,7 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
   
-        app = docker docker.build("biplobcse/'bipl0b#@!@'")
+        app = docker docker.build("avro/avro")
      }
 
     stage('Test image') {
