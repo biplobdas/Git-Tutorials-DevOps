@@ -1,43 +1,33 @@
 pipeline {
-        agent any
-                stages {
-                         stage('One') {
-                               steps {
-                                       echo 'Hi, I am Biplob from BJIT Oy'
-                                  }
-                          }
-                          stage('Two') {
-                                steps {
-                                         input('Do you want to Proceed?')
-                                      }
-                                }
-                          stage('Three') {
-                                 when {
-                                       not {
-                                             branch "master"
-                                           }
-                                     }
-                                   steps {
-                                            echo "Hello"
-                                       } 
-                               }
-                          stage('Four') {
-                                          parallel {
-                                                 stage('Unit Test') {
-                                                                 steps {
-                                                                     echo "Running the unit test..."
-                                                                       }
-                                                               }
-                                                  stage('Integration test') {
-                                                         
-                                                    steps {
-                                                        echo 'Running the integration test...'
-                                                      }
-                                               }
-                                     }    
-                             }
-
+    agent any
+    
+    stages {
+        stage ('Compile Stage') {
+         
+          steps {
+            withMaven(maven : 'maven_3_6_1') {
+               sh 'mvn clean compile'
+              
+             }
+           }
+        }
+      
+    
+        stage ('Testing Stage'){
+           steps {
+             withMaven(maven : 'maven_3_6_1') {
+                sh 'mvn test'
+          }
          }
-                         
-}
+        }
 
+    stage () {
+       steps {
+         withMaven(maven : 'maven_3_6_1') {
+           sh 'mvn deploy'
+         }
+        } 
+       }  
+      }
+
+}
