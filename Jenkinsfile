@@ -32,6 +32,7 @@ pipeline {
                                                               agent {
                                                                     docker {
                                                                               reuseNode false
+                                                                              image 'centos'
                                                                         }
                                                                    }
                                                          
