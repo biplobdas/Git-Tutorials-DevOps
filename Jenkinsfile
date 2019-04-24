@@ -26,12 +26,12 @@ pipeline {
            sh 'echo hello'
         } 
        }
-#    stage('CleanWorkspace') {
-#            steps {
-#                cleanWs()
-#            } 
-#     } 
+    stage('CleanWorkspace') {
+            steps {
+                cleanWs()
+            } 
+     } 
   }
 
 }
-}
+
