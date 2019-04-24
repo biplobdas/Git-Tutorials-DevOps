@@ -24,7 +24,7 @@ pipeline {
     stage ('Deploy Stage') {
        steps {
            withMaven(maven : 'maven_3_6_1') {
-                sh 'mvn deploy  -Dversion=demo-package_P2_'${BUILD_TIMESTAMP}' -Dbuild.number=${BUILD_NUMBER}'
+                sh 'mvn deploy'
           }
         } 
        }
