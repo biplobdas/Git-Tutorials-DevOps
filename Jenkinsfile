@@ -26,11 +26,6 @@ pipeline {
            sh 'echo hello'
         } 
        }
-    stage('CleanWorkspace') {
-            steps {
-                cleanWs()
-            } 
-     } 
   }
 
 }
