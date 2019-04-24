@@ -23,9 +23,7 @@ pipeline {
 
     stage ('Deploy Stage') {
        steps {
-         withMaven(maven : 'maven_3_6_1') {
-           sh 'mvn deploy'
-         }
+           sh 'echo hello'
         } 
        }
     stage('CleanWorkspace') {
