@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>plm</groupId>
     <artifactId>3dspace</artifactId>
-    <version>1</version>
+    <version>${version}</version>
     <packaging>pom</packaging>     
     <properties>
        <baseDir>/var/jenkins_home/workspace/pipeline-demo</baseDir>
