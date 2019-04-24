@@ -1,6 +1,186 @@
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.bjitoy.app</groupId>
-  <artifactId>my-app</artifactId>
-  <version>1</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>plm</groupId>
+    <artifactId>3dspace</artifactId>
+    <version>1</version>
+    <packaging>pom</packaging>     
+    <properties>
+       <baseDir>/var/jenkins_home/workspace/pipeline-demo</baseDir>
+       <build.project.name>pipeline</build.project.name>
+       <HomeDir>/var/jenkins_home/workspace/pipeline-demo</HomeDir>
+       <webapp.dir.source>/var/jenkins_home/workspace/pipeline-demo</webapp.dir.source>
+	   <webapp.dir.target>/var/jenkins_home/workspace/pipeline-demo/demo-package</webapp.dir.target>
+	   <webapp.dir.build.target>/var/jenkins_home/workspace/pipeline-demo/Build_Logs/WebApp</webapp.dir.build.target>
+       <webapp.name>3dspace</webapp.name>
+	   <webapp.package.name>demo-package</webapp.package.name>
+	   <deploy.dir.base>/var/jenkins_home/workspace/pipeline-demo</deploy.dir.base>
+       <deploy.dir.war>WebApp</deploy.dir.war>
+       <BaseDir>Build_Logs</BaseDir>
+     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+            </plugin>
+            
+	    <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                             <artifact>
+                                    <file>${BaseDir}/${deploy.dir.war}/demo-package_P2.${BUILD_NUMBER}_${BUILD_TIMESTAMP}.tar.gz</file>
+                                    <type>tar.gz</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+        <plugins>
+            <plugin>
+               <groupId>org.codehaus.mojo</groupId>
+               <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                  
+                    <execution>
+                        <id>warfile</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <tasks>
+                                <tstamp>
+                                    <format property="started.date" pattern="yyyyMMdd"/>
+                                    <format property="started.time" pattern="HHmmss"/>
+                                    <format property="started" pattern="yyyyMMdd-HHmmss"/>
+                                </tstamp>
+                                <delete dir="${BaseDir}/temp"/>
+                                <mkdir dir="${BaseDir}/temp"/>
+                                <mkdir dir="${BaseDir}/log"/>
+                                <mkdir dir="${BaseDir}/log/${started.date}"/>
+                                <property name="log" value="${BaseDir}/log/${started.date}/${started.time}"/>
+                                <mkdir dir="${log}"/>
+                                <echo message="MXANT"/>
+                                <echo/>
+                                <echo message="Project: ${ant.project.name}"/>
+                                <echo message="File: ${ant.file}"/>
+                                <echo message="User: ${user.name}"/>
+                                <echo message="Started: ${started}"/>
+                                <echo message="Copying custom file to demo-package folder for merging"/>
+                                <copy todir="${webapp.dir.target}" verbose="false" preservelastmodified="true" overwrite="true" failonerror="false">
+                                    <fileset dir="${webapp.dir.source}">
+                                        <exclude name="**/.svn"/>
+                                    </fileset>
+                                </copy> 
+								<echo message="Delete existing demo Package from the Build directory"/>
+                                <delete dir="${webapp.dir.build.target}"/>
+								<echo message="Creating demo Package"/>
+				                <tar destfile="${BaseDir}/${deploy.dir.war}/demo-package_P2.${BUILD_NUMBER}_${BUILD_TIMESTAMP}.tar.gz" compression="gzip" basedir="${webapp.dir.target}" />	
+			 </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    
+                </executions>
+            </plugin>
+			            
+           <plugin>
+                <groupId>org.jfrog.buildinfo</groupId>
+                <artifactId>artifactory-maven-plugin</artifactId>
+                <version>2.4.1</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <configuration>
+                            <deployProperties>
+                                <gradle>awesome</gradle>
+                            </deployProperties>
+                            <artifactory>
+                                <includeEnvVars>true</includeEnvVars>
+                                <timeoutSec>60</timeoutSec>
+                            </artifactory>
+                            <publisher>
+                                <contextUrl>http://192.168.209.217:8081/artifactory</contextUrl>
+                                <username>admin</username>
+                                <password>bipl0b#@!@</password>
+                                <excludePatterns>*-tests.jar</excludePatterns>
+                                <repoKey>generic-local</repoKey>
+                                <snapshotRepoKey>libs-snapshot-local</snapshotRepoKey>
+                            </publisher>
+                            <buildInfo>
+                                <buildName>pipeline-demo</buildName>
+                                <buildNumber>${build.number}</buildNumber>
+                                <buildUrl>http://192.168.209.215:8080/job/pipeline-demo/${build.number}</buildUrl>
+                            </buildInfo>
+                            
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin> 
+       
+        </plugins>
+    </build>
+  
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>bintray-plugins</name>
+            <url>http://jcenter.bintray.com</url>
+        </pluginRepository>
+    </pluginRepositories>
+   
 </project>
